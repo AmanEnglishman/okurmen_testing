@@ -26,16 +26,18 @@ RUN pip install --upgrade pip setuptools wheel
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
+# Copy project files
 COPY . /app/
 
-# Copy entrypoint script
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Set execute permissions for entrypoint script and verify
+RUN chmod +x /app/entrypoint.sh && \
+    ls -la /app/entrypoint.sh && \
+    file /app/entrypoint.sh
 
 # Collect static files (will be collected again in entrypoint, but this helps with build)
 RUN python manage.py collectstatic --noinput || true
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Use bash to execute entrypoint (more reliable)
+ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"]
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "admin_panel.wsgi:application"]
 
