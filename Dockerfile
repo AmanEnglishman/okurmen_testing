@@ -1,43 +1,29 @@
 FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Set work directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        postgresql-client \
-        build-essential \
-        libpq-dev \
-        libjpeg-dev \
-        zlib1g-dev \
-        libpng-dev \
-        libfreetype6-dev \
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip
-RUN pip install --upgrade pip setuptools wheel
+# Копирование и установка зависимостей Python
+COPY requirements.txt ./
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Install Python dependencies
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Копирование проекта
+COPY . .
 
-# Copy project files
-COPY . /app/
+# Создание директорий для статики и медиа
+RUN mkdir -p /app/staticfiles /app/media
 
-# Set execute permissions for entrypoint script and verify
-RUN chmod +x /app/entrypoint.sh && \
-    ls -la /app/entrypoint.sh && \
-    file /app/entrypoint.sh
+# Открываем порт
+EXPOSE 8000
 
-# Collect static files (will be collected again in entrypoint, but this helps with build)
-RUN python manage.py collectstatic --noinput || true
-
-# Use bash to execute entrypoint (more reliable)
-ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"]
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "admin_panel.wsgi:application"]
-
+# Команда по умолчанию (переопределяется в docker-compose)
+CMD ["gunicorn", "admin_panel.wsgi:application", "--bind", "0.0.0.0:8000"]
