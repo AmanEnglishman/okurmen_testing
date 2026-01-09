@@ -13,7 +13,14 @@ RUN apt-get update \
         postgresql-client \
         build-essential \
         libpq-dev \
+        libjpeg-dev \
+        zlib1g-dev \
+        libpng-dev \
+        libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
 
 # Install Python dependencies
 COPY requirements.txt /app/
