@@ -71,7 +71,7 @@ class ProductPhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductPhoto
         fields = [
-            'id', 'image', 'is_main', 'order', 'created_at'
+            'id', 'product', 'image', 'is_main', 'order', 'created_at'
         ]
         read_only_fields = ['created_at']
 
@@ -89,7 +89,7 @@ class ProductTabSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductTab
         fields = [
-            'id', 'title', 'content', 'order',
+            'id', 'product', 'title', 'content', 'order',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']

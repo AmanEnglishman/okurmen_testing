@@ -174,7 +174,11 @@ class ProductPhotoViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Создание фото с автоматическим определением порядка"""
-        product = serializer.validated_data['product']
+        product = serializer.validated_data.get('product')
+        if not product:
+            serializer.save()
+            return
+        
         # Если это первое фото, делаем его главным
         if not product.photos.exists():
             serializer.save(is_main=True)
@@ -216,7 +220,11 @@ class ProductTabViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Создание вкладки с автоматическим определением порядка"""
-        product = serializer.validated_data['product']
+        product = serializer.validated_data.get('product')
+        if not product:
+            serializer.save()
+            return
+        
         # Определяем максимальный порядок
         max_order = product.tabs.aggregate(
             max_order=Max('order')
