@@ -42,3 +42,7 @@ db.sqlite3-journal
 .DS_Store
 Thumbs.db
 
+# SSL certificates (never commit private keys!)
+nginx/ssl/
+nginx/certbot/
+
